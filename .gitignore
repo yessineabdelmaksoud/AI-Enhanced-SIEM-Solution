@@ -1,0 +1,31 @@
+# Vagrant state and local machine data
+.vagrant/
+*.box
+
+# Logs and runtime output
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Python caches (in case local tooling/scripts use Python)
+__pycache__/
+*.pyc
+*.pyo
+
+# Shell history and local env files
+.env
+.env.*

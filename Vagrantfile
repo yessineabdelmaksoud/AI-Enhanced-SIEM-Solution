@@ -49,8 +49,12 @@ Vagrant.configure("2") do |config|
       vb.name   = "VM-SURI-01"
       vb.memory = 2048
       vb.cpus   = 2
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+
     end
-    suri.vm.provision "shell", path: "scripts/suricata/install_suricata.sh"
+    suri.vm.provision "shell",
+      path: "scripts/suricata/install_suricata.sh",
+      args: ["enp0s8", "192.168.56.0/24"]
 
   end
 
@@ -76,7 +80,9 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus   = 1
     end
-
+    endp.vm.provision "shell", inline: <<-SHELL
+        until nc -z 192.168.56.10 1515; do sleep 5; done
+    SHELL
     endp.vm.provision "shell", path: "scripts/wazuh/install_agent.sh"
   end
 
@@ -90,7 +96,9 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus   = 1
     end
-
+    endp.vm.provision "shell", inline: <<-SHELL
+        until nc -z 192.168.56.10 1515; do sleep 5; done
+    SHELL
     endp.vm.provision "shell", path: "scripts/wazuh/install_agent.sh"
   end
 

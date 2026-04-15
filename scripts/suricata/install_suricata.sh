@@ -2,33 +2,55 @@
 set -euo pipefail
 exec > >(tee /var/log/suricata-install.log) 2>&1
 
-WAZUH_MANAGER_IP="192.168.56.10"
-MONITOR_IFACE="eth1"   # interface private_network Vagrant = eth1
+IFACE="${1:-enp0s8}"
+HOME_NET="${2:-192.168.56.0/24}"
 
-echo "=== [1/6] Mise à jour système ==="
+echo "=== [0/9] Variables ==="
+echo "Interface : ${IFACE}"
+echo "HOME_NET  : ${HOME_NET}"
+
+# ── [1] Vérification interface ──────────────────────────────
+echo "=== [1/9] Vérification interface ==="
+if ! ip link show "${IFACE}" >/dev/null 2>&1; then
+  echo "ERREUR : interface ${IFACE} introuvable"
+  ip link show
+  exit 1
+fi
+
+# ── [2] Système ─────────────────────────────────────────────
+echo "=== [2/9] Mise à jour système ==="
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get upgrade -y -qq
 
-echo "=== [2/6] Dépendances ==="
+# ── [3] Dépendances ─────────────────────────────────────────
+echo "=== [3/9] Dépendances ==="
 apt-get install -y -qq \
+  software-properties-common \
   curl wget gnupg apt-transport-https \
   lsb-release ca-certificates \
-  net-tools ufw \
-  auditd audispd-plugins
+  net-tools ufw jq tcpdump
 
-echo "=== [3/6] Installation Suricata ==="
+# ── [4] Installation ─────────────────────────────────────────
+echo "=== [4/9] Installation Suricata ==="
 add-apt-repository -y ppa:oisf/suricata-stable
 apt-get update -qq
-apt-get install -y suricata
+apt-get install -y -qq suricata
 
-echo "=== [4/6] Configuration Suricata ==="
-cat > /etc/suricata/suricata.yaml << SURICATA_CONF
+# ── [5] Sauvegarde ───────────────────────────────────────────
+echo "=== [5/9] Sauvegarde config existante ==="
+cp -a /etc/suricata/suricata.yaml \
+  "/etc/suricata/suricata.yaml.bak.$(date +%F-%H%M%S)"
+
+# ── [6] Configuration ────────────────────────────────────────
+echo "=== [6/9] Déploiement suricata.yaml ==="
+cat > /etc/suricata/suricata.yaml << EOF
 %YAML 1.1
 ---
+
 vars:
   address-groups:
-    HOME_NET: "[192.168.56.0/24]"
+    HOME_NET: "[${HOME_NET}]"
     EXTERNAL_NET: "!\$HOME_NET"
     HTTP_SERVERS: "\$HOME_NET"
     SMTP_SERVERS: "\$HOME_NET"
@@ -53,6 +75,7 @@ vars:
     MODBUS_PORTS: 502
     FILE_DATA_PORTS: "[\$HTTP_PORTS,110,143]"
     FTP_PORTS: 21
+    GENEVE_PORTS: 6081
     VXLAN_PORTS: 4789
     TEREDO_PORTS: 3544
 
@@ -60,39 +83,45 @@ default-log-dir: /var/log/suricata/
 
 stats:
   enabled: yes
-  interval: 8
+  interval: 60
 
 outputs:
   - eve-log:
       enabled: yes
       filetype: regular
       filename: eve.json
+      community-id: true
+      community-id-seed: 0
       types:
         - alert:
+            metadata: yes
+            tagged-packets: yes
             payload: yes
             payload-buffer-size: 4kb
             payload-printable: yes
             packet: yes
-            metadata: yes
             http-body: yes
             http-body-printable: yes
-            tagged-packets: yes
+        - anomaly:
+            enabled: yes
+            types:
+              decode: yes
+              stream: yes
+              applayer: yes
         - http:
             extended: yes
         - dns:
-            query: yes
-            answer: yes
+            version: 2
         - tls:
             extended: yes
+        - ssh
+        - flow
         - files:
-            force-magic: no
-        - smtp: {}
-        - ssh: {}
+            force-magic: yes
         - stats:
             totals: yes
             threads: no
             deltas: no
-        - flow: {}
 
   - fast:
       enabled: yes
@@ -100,20 +129,29 @@ outputs:
       append: yes
 
 af-packet:
-  - interface: ${MONITOR_IFACE}
+  - interface: ${IFACE}
     cluster-id: 99
     cluster-type: cluster_flow
     defrag: yes
     use-mmap: yes
     tpacket-v3: yes
+    ring-size: 200000
+    buffer-size: 64535
+
+stream:
+  memcap: 128mb
+  checksum-validation: yes
+  inline: no
+  reassembly:
+    memcap: 256mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+    randomize-chunk-size: yes
 
 detect:
   profile: medium
-  custom-values:
-    toclient-groups: 3
-    toserver-groups: 25
   sgh-mpm-context: auto
-  inspection-recursion-limit: 3000
 
 app-layer:
   protocols:
@@ -136,6 +174,10 @@ app-layer:
         enabled: yes
         detection-ports:
           dp: 53
+    dnp3:
+      enabled: no
+    modbus:
+      enabled: no
 
 logging:
   default-log-level: notice
@@ -146,82 +188,97 @@ logging:
         enabled: yes
         level: info
         filename: /var/log/suricata/suricata.log
-SURICATA_CONF
 
-echo "=== [5/6] Wazuh Agent sur VM-SURI-01 ==="
-install -d -m 0755 /usr/share/keyrings
-rm -f /usr/share/keyrings/wazuh.gpg
-curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH \
-  | gpg --batch --yes --no-tty --dearmor -o /usr/share/keyrings/wazuh.gpg
-echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
-  > /etc/apt/sources.list.d/wazuh.list
-apt-get update -qq
+default-rule-path: /var/lib/suricata/rules
 
-WAZUH_MANAGER="${WAZUH_MANAGER_IP}" \
-WAZUH_AGENT_NAME="vm-suri-01" \
-apt-get install -y wazuh-agent
+rule-files:
+  - suricata.rules
+  - custom.rules
+EOF
 
-# Config agent — lit eve.json de Suricata
-cat > /var/ossec/etc/ossec.conf << 'AGENT_CONF'
-<ossec_config>
+# ── [7] suricata-update avec disable.conf ────────────────────
+echo "=== [7/9] Mise à jour des règles ==="
 
-  <client>
-    <server>
-      <address>192.168.56.10</address>
-      <port>1514</port>
-      <protocol>tcp</protocol>
-    </server>
-    <enrollment>
-      <enabled>yes</enabled>
-      <manager_address>192.168.56.10</manager_address>
-      <port>1515</port>
-    </enrollment>
-  </client>
+# Désactiver les règles DNP3 via disable.conf (méthode correcte pour 8.x)
+install -d -m 0755 /etc/suricata/update.d
+cat > /etc/suricata/update.d/disable.conf << 'DISABLE'
+# Désactive les règles DNP3 et Modbus (protocoles SCADA non utilisés dans ce labo)
+group:dnp3-events.rules
+group:modbus-events.rules
+DISABLE
 
-  <syscheck>
-    <frequency>300</frequency>
-    <scan_on_start>yes</scan_on_start>
-    <alert_new_files>yes</alert_new_files>
-    <directories check_all="yes" realtime="yes">/etc/suricata</directories>
-    <ignore>/etc/mtab</ignore>
-  </syscheck>
+suricata-update \
+  --disable-conf /etc/suricata/update.d/disable.conf \
+  --no-test
 
-  <!-- Suricata eve.json — format JSON natif Wazuh -->
-  <localfile>
-    <log_format>json</log_format>
-    <location>/var/log/suricata/eve.json</location>
-    <label key="source">suricata</label>
-  </localfile>
+# ── [8] Règles custom — APRÈS suricata-update ────────────────
+echo "=== [8/9] Règles custom labo ==="
+install -d -m 0755 /var/lib/suricata/rules
+# Écrit après suricata-update pour ne pas être écrasé
+cat > /var/lib/suricata/rules/custom.rules << 'RULES'
+# SSH brute force
+alert tcp any any -> $HOME_NET 22 (msg:"SOC-LAB SSH Brute Force Attempt"; \
+  flow:to_server; \
+  threshold:type threshold,track by_src,count 5,seconds 60; \
+  classtype:attempted-admin; sid:9000001; rev:1;)
 
-  <localfile>
-    <log_format>syslog</log_format>
-    <location>/var/log/auth.log</location>
-  </localfile>
-  <localfile>
-    <log_format>syslog</log_format>
-    <location>/var/log/syslog</location>
-  </localfile>
+# Port scan
+alert tcp any any -> $HOME_NET any (msg:"SOC-LAB Port Scan Detected"; \
+  flags:S; \
+  threshold:type threshold,track by_src,count 20,seconds 10; \
+  classtype:network-scan; sid:9000002; rev:1;)
 
-</ossec_config>
-AGENT_CONF
+# ICMP flood
+alert icmp any any -> $HOME_NET any (msg:"SOC-LAB ICMP Flood"; \
+  threshold:type threshold,track by_src,count 50,seconds 10; \
+  classtype:misc-attack; sid:9000003; rev:1;)
 
-# Permissions — wazuh-agent doit lire eve.json
-usermod -aG suricata wazuh 2>/dev/null || true
-chmod 640 /var/log/suricata/eve.json 2>/dev/null || true
-chown suricata:suricata /var/log/suricata/ 2>/dev/null || true
+# HTTP user-agent curl
+alert http any any -> $HOME_NET any (msg:"SOC-LAB Suspicious User-Agent curl"; \
+  flow:to_server,established; \
+  http.user_agent; content:"curl"; nocase; \
+  classtype:policy-violation; sid:9000004; rev:1;)
+RULES
 
-echo "=== [6/6] Démarrage ==="
-ufw allow 22/tcp
-ufw --force enable
+# ── [9] Démarrage ────────────────────────────────────────────
+echo "=== [9/9] Validation + démarrage ==="
 
-# Suricata en mode IDS sur l'interface interne
-systemctl enable suricata
-systemctl start suricata
+# Permissions logs
+install -d -o suricata -g suricata -m 0750 /var/log/suricata
+for f in eve.json fast.log suricata.log; do
+  touch /var/log/suricata/${f}
+  chown suricata:suricata /var/log/suricata/${f}
+  chmod 0640 /var/log/suricata/${f}
+done
+
+ufw allow 22/tcp || true
+ufw --force enable || true
+
+echo "[TEST] Validation configuration"
+if ! suricata -T -c /etc/suricata/suricata.yaml -i "${IFACE}" 2>&1; then
+  echo "ERREUR : suricata -T a échoué"
+  tail -n 50 /var/log/suricata/suricata.log || true
+  exit 1
+fi
+echo "OK : configuration valide"
 
 systemctl daemon-reload
-systemctl enable wazuh-agent
-systemctl start wazuh-agent
+systemctl enable suricata
 
-echo "=== SURICATA + AGENT INSTALLÉS ==="
-systemctl status suricata --no-pager
-systemctl status wazuh-agent --no-pager
+if ! systemctl restart suricata; then
+  journalctl -u suricata -n 50 --no-pager || true
+  exit 1
+fi
+
+sleep 5
+
+if ! systemctl is-active --quiet suricata; then
+  echo "ERREUR : service suricata inactif"
+  journalctl -u suricata -n 50 --no-pager || true
+  exit 1
+fi
+
+echo "OK : Suricata actif sur ${IFACE}"
+echo "OK : eve.json → $(ls -lh /var/log/suricata/eve.json)"
+tail -n 10 /var/log/suricata/suricata.log || true
+echo "=== INSTALLATION SURICATA TERMINÉE ==="
