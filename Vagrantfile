@@ -26,6 +26,17 @@ Vagrant.configure("2") do |config|
     end
 
     wazuh.vm.provision "shell", path: "scripts/wazuh/install_wazuh.sh"
+
+    # Filebeat-Wazuh : attend que le CA soit généré par ELK
+    wazuh.vm.provision "shell", inline: <<-SHELL
+      echo "Attente CA depuis VM-ELK-01..."
+      until [ -f /vagrant/certs/ca.crt ]; do
+        echo "CA introuvable, retry dans 10s..."
+        sleep 10
+      done
+      echo "CA disponible."
+    SHELL
+    wazuh.vm.provision "shell", path: "scripts/filebeat/install_filebeat_wazuh.sh"
   end
 
   # ─── VM-ELK-01 ─────────────────────────────────────────────
@@ -38,6 +49,8 @@ Vagrant.configure("2") do |config|
       vb.memory = 6144
       vb.cpus   = 2
     end
+
+    elk.vm.provision "shell", path: "scripts/elk/install_elk.sh"
   end
 
   # ─── VM-SURI-01 ────────────────────────────────────────────
@@ -47,15 +60,24 @@ Vagrant.configure("2") do |config|
 
     suri.vm.provider "virtualbox" do |vb|
       vb.name   = "VM-SURI-01"
-      vb.memory = 2048
+      vb.memory = 3072
       vb.cpus   = 2
       vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
-
     end
+
     suri.vm.provision "shell",
       path: "scripts/suricata/install_suricata.sh",
       args: ["enp0s8", "192.168.56.0/24"]
 
+    suri.vm.provision "shell", inline: <<-SHELL
+      echo "Attente CA depuis VM-ELK-01..."
+      until [ -f /vagrant/certs/ca.crt ]; do
+        echo "CA introuvable, retry dans 10s..."
+        sleep 10
+      done
+      echo "CA disponible."
+    SHELL
+    suri.vm.provision "shell", path: "scripts/filebeat/install_filebeat_suricata.sh"
   end
 
   # ─── VM-AI-01 ──────────────────────────────────────────────
@@ -68,6 +90,8 @@ Vagrant.configure("2") do |config|
       vb.memory = 6144
       vb.cpus   = 4
     end
+
+    # Provision AI vient plus tard - placeholder
   end
 
   # ─── VM-ENDP-01 ────────────────────────────────────────────
@@ -80,8 +104,9 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus   = 1
     end
+
     endp.vm.provision "shell", inline: <<-SHELL
-        until nc -z 192.168.56.10 1515; do sleep 5; done
+      until nc -z 192.168.56.10 1515; do sleep 5; done
     SHELL
     endp.vm.provision "shell", path: "scripts/wazuh/install_agent.sh"
   end
@@ -96,8 +121,9 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus   = 1
     end
+
     endp.vm.provision "shell", inline: <<-SHELL
-        until nc -z 192.168.56.10 1515; do sleep 5; done
+      until nc -z 192.168.56.10 1515; do sleep 5; done
     SHELL
     endp.vm.provision "shell", path: "scripts/wazuh/install_agent.sh"
   end

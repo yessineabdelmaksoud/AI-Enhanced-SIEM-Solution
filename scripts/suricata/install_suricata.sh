@@ -23,6 +23,15 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get upgrade -y -qq
 
+echo "=== [2b/9] Création swap ==="
+if [ ! -f /swapfile ]; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 # ── [3] Dépendances ─────────────────────────────────────────
 echo "=== [3/9] Dépendances ==="
 apt-get install -y -qq \
@@ -206,6 +215,9 @@ cat > /etc/suricata/update.d/disable.conf << 'DISABLE'
 group:dnp3-events.rules
 group:modbus-events.rules
 DISABLE
+
+suricata-update update-sources
+suricata-update enable-source et/open  # Emerging Threats Open uniquement
 
 suricata-update \
   --disable-conf /etc/suricata/update.d/disable.conf \

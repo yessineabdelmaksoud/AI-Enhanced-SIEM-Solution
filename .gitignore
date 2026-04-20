@@ -29,3 +29,7 @@ __pycache__/
 # Shell history and local env files
 .env
 .env.*
+*.env
+*.crt
+
+
