@@ -1,35 +1,26 @@
-# Vagrant state and local machine data
-.vagrant/
-*.box
+# Secrets
+config/.env
+certs/*.crt
+certs/*.key
 
-# Logs and runtime output
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.temp
-*.swp
-*.swo
-*~
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# IDE/editor settings
-.vscode/
-.idea/
-
-# Python caches (in case local tooling/scripts use Python)
+# Python
 __pycache__/
 *.pyc
 *.pyo
+.venv/
+.pytest_cache/
 
-# Shell history and local env files
-.env
-.env.*
-*.env
-*.crt
+# Logs and runtime
+logs/*.json
+logs/*.csv
+logs/*.txt
+*.log
 
+# IDE
+.vscode/
+.idea/
+*.swp
 
+# OS
+.DS_Store
+Thumbs.db

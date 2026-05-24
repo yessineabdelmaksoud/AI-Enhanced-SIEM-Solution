@@ -405,3 +405,98 @@ curl -sk -u elastic:SocSiem2024! \
   --cacert /etc/elasticsearch/certs/ca/ca.crt \
   "https://192.168.56.20:9200/suricata-eve-*/_count"
 >>>>>>> e55a584 (Add installation scripts and configuration for ELK stack and Filebeat)
+
+
+```
+pfa
+├─ AI-Enhanced-SIEM-Solution
+│  ├─ data
+│  │  └─ samples
+│  │    └─ benchmark_prompt.txt
+│  │     └── scenarios/                        [étape 11]
+│  │         ├── S1_brute_force.md
+│  │         ├── S2_port_scan.md
+│  │         ├── S3_file_modify.md
+│  │         ├── S4_icmp_flood.md
+│  │         └── S5_user_agent.md
+│  ├─ scripts
+│  │  ├─ ai
+│  │  │  ├─ 02setup_ollama_vm.sh
+│  │  │  ├─ 03_pull_model.sh
+│  │  │  └─ 04_benchmark_llm.sh
+│  │  ├─ elk
+│  │  │  ├─ create_templates.sh
+│  │  │  └─ install_elk.sh
+│  │  ├─ filebeat
+│  │  │  ├─ install_filebeat_suricata.sh
+│  │  │  └─ install_filebeat_wazuh.sh
+│  │  ├─ suricata
+│  │  │  └─ install_suricata.sh
+│  │  └─ wazuh
+│  │     ├─ install_agent.sh
+│  │     └─ install_wazuh.sh
+├── systemd/
+│   └── soc-ai-fastapi.service                [TODO étape 3]
+├── logs/
+│   ├── benchmark_*.txt                       ✓ existe
+│   └── benchmark_*.csv                       ✓ existe
+├── app/
+│   └── fastapi/
+│       ├── requirements.txt                  [TODO étape 3]
+│       ├── app/
+│       │   ├── __init__.py
+│       │   ├── main.py                       [TODO étape 3]
+│       │   ├── core/
+│       │   │   ├── config.py                 [TODO étape 3]
+│       │   │   └── logging.py                [TODO étape 3]
+│       │   ├── api/
+│       │   │   ├── routes_health.py          [TODO étape 3]
+│       │   │   ├── routes_debug.py           [étape 4]
+│       │   │   ├── routes_enrich.py          [étape 9]
+│       │   │   └── routes_incidents.py       [étape 9]
+│       │   ├── models/
+│       │   │   └── alert.py                  [étape 4]
+│       │   ├── repositories/
+│       │   │   └── elastic_repository.py     [TODO étape 3]
+│       │   ├── services/
+│       │   │   ├── llm_gateway.py            [TODO étape 3 stub, étape 7 complet]
+│       │   │   ├── exceptions.py             [étape 7]
+│       │   │   ├── alert_service.py          [étape 4]
+│       │   │   ├── context_service.py        [étape 4]
+│       │   │   ├── dedup_service.py          [étape 5]
+│       │   │   ├── scoring_service.py        [étape 5]
+│       │   │   ├── prompt_service.py         [étape 6]
+│       │   │   ├── validation_service.py     [étape 8]
+│       │   │   └── enrichment_service.py     [étape 8]
+│       │   └── static/                       [étape 10]
+│       │       ├── index.html
+│       │       ├── incident.html
+│       │       ├── health.html
+│       │       ├── css/style.css
+│       │       └── js/
+│       │           ├── api.js
+│       │           ├── incidents.js
+│       │           └── detail.js
+│       └── tests/
+│           ├── conftest.py                   [étape 5]
+│           └── test_scoring.py               [étape 5]
+├── README.md                                 [TODO]
+├── .gitignore                                [TODO]
+│
+├── config/                                   [TODO étape 3]
+│   ├── .env.example                          # versionné
+│   ├── .env                                  # git-ignoré
+│   └── ai/
+│       ├── prompts/v1/
+│       │   ├── explain_prompt.txt            [étape 6]
+│       │   ├── investigate_prompt.txt        [étape 6]
+│       │   └── remediate_prompt.txt          [étape 6]
+│       ├── schemas/v1/
+│       │   ├── explain_response.schema.json  [étape 6]
+│       │   ├── investigate_response.schema.json
+│       │   └── remediate_response.schema.json
+│       └── remediation_actions.json          [étape 6]
+│
+├── certs/
+│   └── ca.crt                                [TODO étape 3 - copier de vm-elk]
+```

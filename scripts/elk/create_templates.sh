@@ -445,10 +445,10 @@ ${ES_CURL} -X PUT "${ES_HOST}/_index_template/suricata-eve-template" \
 
 echo ""
 echo "=== Index Template : soc-ai-alerts ==="
-${ES_CURL} -X PUT "${ES_HOST}/_index_template/soc-ai-alerts-template" \
+${ES_CURL} -X PUT "${ES_HOST}/_index_template/soc-ai-enrichments-template" \
   -H "Content-Type: application/json" \
   -d '{
-  "index_patterns": ["soc-ai-alerts-*"],
+  "index_patterns": ["soc-ai-enrichments*"],
   "priority": 100,
   "template": {
     "settings": {
@@ -458,47 +458,38 @@ ${ES_CURL} -X PUT "${ES_HOST}/_index_template/soc-ai-alerts-template" \
     },
     "mappings": {
       "properties": {
-        "@timestamp":                           { "type": "date" },
-        "created_at":                           { "type": "date" },
+        "@timestamp": { "type": "date" },
+        "created_at": { "type": "date" },
 
-        "incident_id":                          { "type": "keyword" },
-        "group_id":                             { "type": "keyword" },
-        "report_id":                            { "type": "keyword" },
-        "chat_session_id":                      { "type": "keyword" },
+        "enrichment_id": { "type": "keyword" },
+        "incident_key": { "type": "keyword" },
+        "source_alert_id": { "type": "keyword" },
+        "source_engine": { "type": "keyword" },
+        "usage": { "type": "keyword" },
+        "prompt_version": { "type": "keyword" },
 
-        "dedup_key":                            { "type": "keyword" },
-        "original_alert_id":                    { "type": "keyword" },
-        "source_engine":                        { "type": "keyword" },
-        "action_type":                          { "type": "keyword" },
-        "status":                               { "type": "keyword" },
+        "model": { "type": "keyword" },
+        "latency_ms": { "type": "integer" },
+        "validated": { "type": "boolean" },
 
-        "risk_score":                           { "type": "float" },
+        "risk_score": { "type": "float" },
+        "risk_category": { "type": "keyword" },
+        "occurrences": { "type": "integer" },
 
-        "llm.model":                            { "type": "keyword" },
-        "llm.latency_ms":                       { "type": "integer" },
-        "llm.prompt_version":                   { "type": "keyword" },
-        "llm.validation_status":                { "type": "keyword" },
+        "source_alert.timestamp": { "type": "date" },
+        "source_alert.rule_id": { "type": "keyword" },
+        "source_alert.agent_name": { "type": "keyword" },
+        "source_alert.source_ip": { "type": "ip", "ignore_malformed": true },
+        "source_alert.destination_ip": { "type": "ip", "ignore_malformed": true },
 
-        "context.event_count":                  { "type": "integer" },
-        "context.window_start":                 { "type": "date" },
-        "context.window_end":                   { "type": "date" },
-        "context.source_indexes":               { "type": "keyword" },
+        "context.event_count": { "type": "integer" },
+        "context.window_start": { "type": "date" },
+        "context.window_end": { "type": "date" },
+        "context.source_indexes": { "type": "keyword" },
 
-        "source_alert.timestamp":               { "type": "date" },
-        "source_alert.rule_id":                 { "type": "keyword" },
-        "source_alert.agent_name":              { "type": "keyword" },
-        "source_alert.source_ip":               { "type": "ip", "ignore_malformed": true },
-        "source_alert.destination_ip":          { "type": "ip", "ignore_malformed": true },
-
-        "timeline":                             { "type": "nested" },
-
-        "enrichment.explanation":               { "type": "text" },
-        "enrichment.severity_assessment":       { "type": "keyword" },
-        "enrichment.false_positive_likelihood": { "type": "keyword" },
-        "enrichment.investigation_steps":       { "type": "text" },
-        "enrichment.key_iocs":                  { "type": "keyword" },
-        "enrichment.immediate_actions":         { "type": "text" },
-        "enrichment.long_term_recommendations": { "type": "text" }
+        "response": { "type": "object", "enabled": true },
+        "errors": { "type": "text" },
+        "raw_response": { "type": "text" }
       }
     }
   }

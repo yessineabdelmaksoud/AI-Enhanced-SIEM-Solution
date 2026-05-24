@@ -1,0 +1,95 @@
+Tu es un assistant SOC senior. Analyse l'incident ci-dessous et réponds UNIQUEMENT avec un JSON valide conforme à ce schéma :
+{
+  "summary": "string (50-500 chars, français, explication contextualisée)",
+  "severity_assessment": "low|medium|high|critical",
+  "key_iocs": ["string"],
+  "attack_phase": "reconnaissance|initial_access|credential_access|lateral_movement|impact|unknown",
+  "mitre_techniques": ["T1110", "T1078", ...]
+}
+
+Aucun texte hors JSON. Pas de markdown. Pas de commentaire.
+
+Voici le contexte de l'incident :
+{
+  "source_alert": {
+    "_id": "wazuh-2026-05-07-001247",
+    "timestamp": "2026-05-07T19:42:13.421Z",
+    "source_engine": "wazuh",
+    "rule_id": "5763",
+    "rule_description": "Multiple authentication failures followed by a successful authentication",
+    "severity": 10,
+    "agent_name": "vm-endp-01",
+    "agent_ip": "192.168.56.51",
+    "source_ip": "192.168.56.30",
+    "destination_ip": "192.168.56.51",
+    "user_name": "root",
+    "mitre_id": "T1110.001",
+    "mitre_tactic": "credential-access",
+    "raw_log": "Failed password for root from 192.168.56.30 port 47238 ssh2"
+  },
+  "related_events": [
+    {
+      "_id": "wazuh-2026-05-07-001231",
+      "timestamp": "2026-05-07T19:41:08.112Z",
+      "source_engine": "wazuh",
+      "rule_id": "5710",
+      "rule_description": "Attempt to login using a non-existent user",
+      "severity": 5,
+      "agent_name": "vm-endp-01",
+      "source_ip": "192.168.56.30",
+      "user_name": "admin",
+      "delta_seconds": -65
+    },
+    {
+      "_id": "wazuh-2026-05-07-001233",
+      "timestamp": "2026-05-07T19:41:15.087Z",
+      "source_engine": "wazuh",
+      "rule_id": "5710",
+      "rule_description": "Attempt to login using a non-existent user",
+      "severity": 5,
+      "agent_name": "vm-endp-01",
+      "source_ip": "192.168.56.30",
+      "user_name": "test",
+      "delta_seconds": -58
+    },
+    {
+      "_id": "wazuh-2026-05-07-001238",
+      "timestamp": "2026-05-07T19:41:34.541Z",
+      "source_engine": "wazuh",
+      "rule_id": "5712",
+      "rule_description": "SSHD brute force trying to get access to the system",
+      "severity": 10,
+      "agent_name": "vm-endp-01",
+      "source_ip": "192.168.56.30",
+      "delta_seconds": -39
+    },
+    {
+      "_id": "suricata-2026-05-07-000412",
+      "timestamp": "2026-05-07T19:41:48.901Z",
+      "source_engine": "suricata",
+      "rule_id": "9000001",
+      "signature": "ET POLICY SSH Brute Force Attempt",
+      "severity": 2,
+      "source_ip": "192.168.56.30",
+      "destination_ip": "192.168.56.51",
+      "destination_port": 22,
+      "delta_seconds": -25
+    },
+    {
+      "_id": "wazuh-2026-05-07-001245",
+      "timestamp": "2026-05-07T19:42:01.223Z",
+      "source_engine": "wazuh",
+      "rule_id": "5715",
+      "rule_description": "SSHD authentication success",
+      "severity": 3,
+      "agent_name": "vm-endp-01",
+      "source_ip": "192.168.56.30",
+      "user_name": "root",
+      "delta_seconds": -12
+    }
+  ],
+  "occurrences": 14,
+  "time_window_minutes": 15
+}
+
+Réponds UNIQUEMENT avec le JSON conforme au schéma.

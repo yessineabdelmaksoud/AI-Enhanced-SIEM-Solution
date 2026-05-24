@@ -1,0 +1,23 @@
+[Unit]
+Description=SOC AI Enrichment API (FastAPI)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vm-ai
+Group=vm-ai
+WorkingDirectory=/home/vm-ai/soc-ai-lab/app/fastapi
+EnvironmentFile=/home/vm-ai/soc-ai-lab/config/.env
+ExecStart=/home/vm-ai/soc-ai-lab/app/fastapi/.venv/bin/uvicorn app.main:app --host ${FASTAPI_HOST} --port ${FASTAPI_PORT}
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

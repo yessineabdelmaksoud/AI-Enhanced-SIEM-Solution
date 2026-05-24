@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soc-ai.local/schemas/v1/investigate_response.json",
+  "title": "Investigate Response",
+  "type": "object",
+  "required": ["queries", "rationale"],
+  "additionalProperties": false,
+  "properties": {
+    "queries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["title", "kql", "expected_findings"],
+        "additionalProperties": false,
+        "properties": {
+          "title": {"type": "string", "maxLength": 100},
+          "kql": {"type": "string", "maxLength": 500},
+          "expected_findings": {"type": "string", "maxLength": 200}
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "maxLength": 400
+    }
+  }
+}

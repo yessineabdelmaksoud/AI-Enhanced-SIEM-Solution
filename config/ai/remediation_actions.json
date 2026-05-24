@@ -1,0 +1,52 @@
+[
+  {
+    "id": "isolate_host",
+    "label_fr": "Isoler l'hôte",
+    "description_fr": "Isoler l'hôte du réseau via une règle firewall pour bloquer toute communication entrante et sortante."
+  },
+  {
+    "id": "block_source_ip",
+    "label_fr": "Bloquer l'IP source",
+    "description_fr": "Bloquer l'adresse IP source au niveau du pare-feu périmétrique pour empêcher de futures connexions."
+  },
+  {
+    "id": "force_password_reset",
+    "label_fr": "Forcer la réinitialisation du mot de passe",
+    "description_fr": "Forcer la réinitialisation du mot de passe de l'utilisateur concerné lors de sa prochaine connexion."
+  },
+  {
+    "id": "disable_user_account",
+    "label_fr": "Désactiver le compte utilisateur",
+    "description_fr": "Désactiver temporairement le compte utilisateur en attendant l'investigation."
+  },
+  {
+    "id": "review_file_integrity",
+    "label_fr": "Vérifier l'intégrité des fichiers",
+    "description_fr": "Vérifier l'intégrité et le contenu des fichiers critiques modifiés signalés par Wazuh syscheck."
+  },
+  {
+    "id": "increase_logging",
+    "label_fr": "Augmenter le niveau de logs",
+    "description_fr": "Augmenter le niveau de verbosité des logs sur l'hôte concerné pour observer la suite de l'activité."
+  },
+  {
+    "id": "escalate_to_l2",
+    "label_fr": "Escalader à l'analyste L2",
+    "description_fr": "Escalader l'incident à l'analyste de niveau 2 pour investigation approfondie."
+  },
+  {
+    "id": "collect_forensics",
+    "label_fr": "Collecter des éléments forensiques",
+    "description_fr": "Collecter une image mémoire et les logs système de l'hôte pour analyse forensique."
+  },
+  {
+    "id": "monitor_no_action",
+    "label_fr": "Surveiller sans action",
+    "description_fr": "Surveiller passivement sans action immédiate. Probable faux positif à confirmer avec plus de contexte."
+  },
+  {
+    "id": "close_false_positive",
+    "label_fr": "Marquer comme faux positif",
+    "description_fr": "Marquer l'alerte comme faux positif après vérification et la fermer."
+  }
+]

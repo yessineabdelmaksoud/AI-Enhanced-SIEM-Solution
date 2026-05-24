@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soc-ai.local/schemas/v1/explain_response.json",
+  "title": "Explain Response",
+  "type": "object",
+  "required": ["summary", "severity_assessment", "key_iocs", "attack_phase"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 50,
+      "maxLength": 800
+    },
+    "severity_assessment": {
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "key_iocs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "maxItems": 10
+    },
+    "attack_phase": {
+      "enum": [
+        "reconnaissance",
+        "initial_access",
+        "execution",
+        "persistence",
+        "privilege_escalation",
+        "defense_evasion",
+        "credential_access",
+        "discovery",
+        "lateral_movement",
+        "collection",
+        "exfiltration",
+        "impact",
+        "unknown"
+      ]
+    },
+    "mitre_techniques": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+      },
+      "maxItems": 5
+    }
+  }
+}
