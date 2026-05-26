@@ -1,4 +1,8 @@
 #!/bin/bash
+# Install and configure Suricata NIDS on VM-SURI-01.
+# Captures traffic on the host-only interface, writes alerts to eve.json + fast.log.
+# Usage: install_suricata.sh [IFACE] [HOME_NET]  (defaults: enp0s8, 192.168.56.0/24)
+# Run as root. Output logged to /var/log/suricata-install.log.
 set -euo pipefail
 exec > >(tee /var/log/suricata-install.log) 2>&1
 

@@ -1,5 +1,8 @@
 #!/bin/bash
-
+# Provision Ollama on VM-AI-01 in a Docker container.
+# Detects CPU vs GPU, pulls the Ollama image, exposes port 11434 on the
+# host-only network so FastAPI can call /api/generate. Idempotent.
+# Run as root on the AI VM.
 set -e
 
 echo "======================================"

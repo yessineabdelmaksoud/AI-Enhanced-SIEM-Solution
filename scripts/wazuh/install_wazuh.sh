@@ -1,4 +1,8 @@
 #!/bin/bash
+# Install and configure Wazuh manager on VM-WAZUH-01.
+# Sets up apt repo, installs wazuh-manager, enables JSON alert output,
+# opens ports 1514/1515 for agent enrollment and event ingestion.
+# Run as root on a fresh Ubuntu 22.04 VM. Output logged to /var/log/wazuh-install.log.
 set -euo pipefail
 exec > >(tee /var/log/wazuh-install.log) 2>&1
 
