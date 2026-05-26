@@ -1,4 +1,9 @@
 #!/bin/bash
+# Install Elasticsearch + Kibana stack on VM-ELK-01.
+# Generates CA + node certs, sets elastic/kibana_system passwords,
+# enables TLS, and exports credentials to /vagrant/certs/es_credentials.env.
+# Versions MUST match across ES/Kibana/Filebeat (8.13.4). Ubuntu 22.04.
+# Run as root. Output logged to /var/log/elk-install.log.
 set -euo pipefail
 exec > >(tee /var/log/elk-install.log) 2>&1
 

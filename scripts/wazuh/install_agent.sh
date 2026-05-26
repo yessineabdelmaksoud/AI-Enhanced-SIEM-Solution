@@ -1,4 +1,7 @@
 #!/bin/bash
+# Install Wazuh agent on endpoint VMs and enroll with the manager.
+# Registers via authd on 192.168.56.10:1515, then ships events on 1514.
+# Run as root on each endpoint. Output logged to /var/log/wazuh-agent-install.log.
 set -euo pipefail
 exec > >(tee /var/log/wazuh-agent-install.log) 2>&1
 

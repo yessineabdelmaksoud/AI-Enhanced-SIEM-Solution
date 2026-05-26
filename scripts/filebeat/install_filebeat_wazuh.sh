@@ -1,5 +1,7 @@
 #!/bin/bash
-# Exécuté sur VM-WAZUH-01
+# Install Filebeat on VM-WAZUH-01 to ship Wazuh alerts to Elasticsearch.
+# Tails /var/ossec/logs/alerts/alerts.json and writes to wazuh-alerts-*.
+# Filebeat version MUST match Elasticsearch (8.13.4). Run as root.
 set -euo pipefail
 exec > >(tee /var/log/filebeat-wazuh-install.log) 2>&1
 

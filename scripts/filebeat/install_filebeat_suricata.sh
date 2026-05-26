@@ -1,5 +1,7 @@
 #!/bin/bash
-# Exécuté sur VM-SURI-01
+# Install Filebeat on VM-SURI-01 to ship Suricata events to Elasticsearch.
+# Tails /var/log/suricata/eve.json and writes to suricata-eve-*.
+# Filebeat version MUST match Elasticsearch (8.13.4). Run as root.
 set -euo pipefail
 exec > >(tee /var/log/filebeat-suricata-install.log) 2>&1
 

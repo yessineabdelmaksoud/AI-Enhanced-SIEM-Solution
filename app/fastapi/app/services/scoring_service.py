@@ -1,19 +1,8 @@
 """Deterministic risk scoring (no LLM).
 
-Formula:
-    severity_norm = min(severity, 15) / 15
-    occurrence_w  = min(log10(occurrences + 1), 1.0)
-    recency_w     = max(0, 1 - age_seconds / 86400)
-    mitre_bonus   = 0.1 if mitre_id present else 0
-
-    score = 100 * (
-        0.4 * severity_norm +
-        0.3 * occurrence_w  +
-        0.2 * recency_w     +
-        0.1 * mitre_bonus
-    )
-
+Weighted: 0.4*severity + 0.3*occurrences + 0.2*recency + 0.1*mitre_bonus.
 Bounded [0, 100]. Categories: low <40, medium <70, high <90, critical >=90.
+See _compute_factors() for exact formula.
 """
 import logging
 import math

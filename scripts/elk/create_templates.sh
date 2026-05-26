@@ -1,4 +1,8 @@
 #!/bin/bash
+# Provision Elasticsearch ingest pipelines and index templates.
+# Creates wazuh-normalize + suricata-normalize pipelines and matching
+# templates so wazuh-alerts-* and suricata-eve-* indices share a common schema.
+# Run on VM-ELK-01 after install_elk.sh. Requires /vagrant/certs/es_credentials.env.
 set -euo pipefail
 
 source /vagrant/certs/es_credentials.env
