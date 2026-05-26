@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health — SOC AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">SOC AI Enrichment</h1>
+    <nav class="text-sm">
+      <a href="/" class="hover:underline mr-4">Incidents</a>
+      <a href="/ui/health" class="hover:underline">Health</a>
+    </nav>
+  </header>
+  <main class="max-w-2xl mx-auto px-6 py-6">
+    <h2 class="text-lg font-semibold mb-4">État du système</h2>
+    <div id="health-body" class="bg-white rounded-lg shadow p-5 text-sm">Chargement…</div>
+  </main>
+  <script>
+    async function loadHealth() {
+      const el = document.getElementById("health-body");
+      try {
+        const res = await fetch("/health");
+        const d = await res.json();
+        const dot = (ok) => ok
+          ? '<span class="text-green-600">●</span>'
+          : '<span class="text-red-600">●</span>';
+        el.innerHTML = `
+          <div class="grid grid-cols-2 gap-y-2">
+            <div class="text-slate-500">Statut global</div><div>${dot(d.status === "ok")} ${d.status}</div>
+            <div class="text-slate-500">Elasticsearch</div><div>${dot(d.elasticsearch === "ok")} ${d.elasticsearch}</div>
+            <div class="text-slate-500">Ollama</div><div>${dot(d.ollama === "ok")} ${d.ollama}</div>
+            <div class="text-slate-500">Modèle</div><div class="font-mono">${d.model}</div>
+            <div class="text-slate-500">Version</div><div>${d.version}</div>
+          </div>`;
+      } catch (e) {
+        el.innerHTML = '<span class="text-red-700">Erreur réseau</span>';
+      }
+    }
+    document.addEventListener("DOMContentLoaded", loadHealth);
+  </script>
+</body>
+</html>

@@ -10,23 +10,18 @@ logger = logging.getLogger(__name__)
 
 
 class ValidationService:
-    """Cached Draft202012 validators, one per usage."""
+    """Cached Draft202012 validators and raw schemas, one per usage."""
 
     def __init__(self, schemas_dir: Path) -> None:
         self._schemas_dir = Path(schemas_dir)
         self._validator_cache: dict[str, Draft202012Validator] = {}
+        self._schema_cache: dict[str, dict] = {}
 
     def validate(self, usage: str, response: Any) -> tuple[bool, list[str]]:
-        """Validate `response` against the schema for `usage`.
-
-        Returns (True, []) when valid, (False, list_of_error_messages) otherwise.
-        Never raises.
-        """
         if not isinstance(response, dict):
             return False, [
                 f"Response must be a JSON object, got {type(response).__name__}"
             ]
-
         try:
             validator = self._load_validator(usage)
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as exc:
@@ -36,11 +31,14 @@ class ValidationService:
         for err in validator.iter_errors(response):
             path = "/".join(str(p) for p in err.absolute_path) or "(root)"
             errors.append(f"{path}: {err.message}")
-
         return (len(errors) == 0, errors)
 
+    def get_schema(self, usage: str) -> dict:
+        """Return the raw schema dict (used to constrain Ollama generation)."""
+        self._load_validator(usage)
+        return self._schema_cache[usage]
+
     def warmup(self) -> None:
-        """Pre-load all validators."""
         for usage in ("explain", "investigate", "remediate"):
             self._load_validator(usage)
         logger.info("ValidationService warmed up")
@@ -56,10 +54,8 @@ class ValidationService:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
 
+        self._schema_cache[usage] = schema
         validator = Draft202012Validator(schema)
         self._validator_cache[usage] = validator
-        logger.info(
-            "Validator loaded",
-            extra={"usage": usage, "path": str(path)},
-        )
+        logger.info("Validator loaded", extra={"usage": usage, "path": str(path)})
         return validator

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-from app.api import routes_debug, routes_health
+from app.api import routes_debug, routes_enrich, routes_health, routes_incidents
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.repositories.elastic_repository import ElasticRepository
@@ -17,6 +17,8 @@ from app.services.llm_gateway import LlmGateway
 from app.services.prompt_service import PromptService
 from app.services.scoring_service import ScoringService
 from app.services.validation_service import ValidationService
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 logger = logging.getLogger(__name__)
 
@@ -97,3 +99,23 @@ app = FastAPI(
 
 app.include_router(routes_health.router, tags=["health"])
 app.include_router(routes_debug.router, prefix="/debug", tags=["debug"])
+app.include_router(routes_enrich.router, tags=["enrichment"])
+app.include_router(routes_incidents.router, tags=["incidents"])
+
+# ---------- Static UI ----------
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def ui_index() -> FileResponse:
+    return FileResponse("app/static/index.html")
+
+
+@app.get("/incident.html", include_in_schema=False)
+async def ui_incident() -> FileResponse:
+    return FileResponse("app/static/incident.html")
+
+
+@app.get("/ui/health", include_in_schema=False)
+async def ui_health() -> FileResponse:
+    return FileResponse("app/static/health.html")

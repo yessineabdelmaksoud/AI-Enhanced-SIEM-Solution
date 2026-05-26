@@ -131,11 +131,15 @@ class EnrichmentService:
         llm_response: Any = None
         llm_error: str | None = None
         validation_attempts: list[dict] = []
-
+        # Schema used to constrain Ollama generation (structured output)
+        response_schema = self._validation_svc.get_schema(usage)
+        
         for attempt in (1, 2):
             t_llm = time.monotonic()
             try:
-                llm_response = await self._llm_gw.generate(prompt, json_format=True)
+                llm_response = await self._llm_gw.generate(
+                    prompt, response_schema=response_schema
+                )
             except LlmTimeoutError as exc:
                 llm_error = "llm_timeout"
                 logger.warning(

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident — SOC AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">SOC AI Enrichment</h1>
+    <nav class="text-sm">
+      <a href="/" class="hover:underline mr-4">← Incidents</a>
+      <a href="/ui/health" class="hover:underline">Health</a>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-6">
+    <div id="status" class="text-sm text-slate-500 mb-3">Chargement…</div>
+
+    <section id="alert-section" class="bg-white rounded-lg shadow p-5 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-3">Alerte source</h2>
+      <div id="alert-body" class="text-sm"></div>
+      <h3 class="font-semibold mt-4 mb-2">Contexte corrélé (<span id="ctx-count">0</span>)</h3>
+      <div id="context-body" class="text-sm"></div>
+    </section>
+
+    <section class="mb-6">
+      <div class="flex flex-wrap gap-3">
+        <button data-usage="explain" class="enrich-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Expliquer</button>
+        <button data-usage="investigate" class="enrich-btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Investiguer</button>
+        <button data-usage="remediate" class="enrich-btn bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded">Remédiation</button>
+      </div>
+    </section>
+
+    <section id="result" class="bg-white rounded-lg shadow p-5 min-h-[120px]">
+      <p class="text-slate-400 text-sm">Choisis une action d'enrichissement ci-dessus.</p>
+    </section>
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/detail.js"></script>
+</body>
+</html>

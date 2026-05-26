@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOC AI Enrichment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">SOC AI Enrichment</h1>
+    <nav class="text-sm">
+      <a href="/" class="hover:underline mr-4">Incidents</a>
+      <a href="/ui/health" class="hover:underline">Health</a>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold">Incidents (dernières 24h)</h2>
+      <button id="refresh" class="text-sm bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded">Rafraîchir</button>
+    </div>
+
+    <div id="status" class="text-sm text-slate-500 mb-3">Chargement…</div>
+
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 text-slate-600 text-left">
+          <tr>
+            <th class="px-4 py-3">Risk</th>
+            <th class="px-4 py-3">Score</th>
+            <th class="px-4 py-3">Règle</th>
+            <th class="px-4 py-3">Source</th>
+            <th class="px-4 py-3">Entité</th>
+            <th class="px-4 py-3">Occ.</th>
+            <th class="px-4 py-3">Vu</th>
+            <th class="px-4 py-3">Enrichi</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody id="incidents-body"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/incidents.js"></script>
+</body>
+</html>
