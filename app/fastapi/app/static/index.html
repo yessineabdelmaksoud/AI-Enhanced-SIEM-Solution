@@ -17,10 +17,30 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-6 py-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold">Incidents (dernières 24h)</h2>
-      <button id="refresh" class="text-sm bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded">Rafraîchir</button>
+    <h2 class="text-lg font-semibold mb-4">Incidents</h2>
+
+    <!-- Filtres -->
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <select id="time-range" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+        <option value="1">1 heure</option>
+        <option value="6">6 heures</option>
+        <option value="24" selected>24 heures</option>
+        <option value="72">3 jours</option>
+        <option value="168">7 jours</option>
+      </select>
+      <select id="category-filter" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+        <option value="all">Toutes catégories</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <input id="search" placeholder="Règle ou IP…" class="border border-slate-300 rounded px-3 py-1.5 text-sm flex-1 min-w-[160px]">
+      <button id="refresh" class="text-sm bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded">Rafraîchir</button>
     </div>
+
+    <!-- Stats -->
+    <div id="stats" class="flex flex-wrap gap-2 mb-4 text-xs"></div>
 
     <div id="status" class="text-sm text-slate-500 mb-3">Chargement…</div>
 

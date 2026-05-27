@@ -37,6 +37,10 @@ const API = {
     return this._fetch(`/enrichments/${encodeURIComponent(id)}`);
   },
 
+  enrichmentsByAlert(alertId) {
+    return this._fetch(`/enrichments/by-alert/${encodeURIComponent(alertId)}`);
+  },
+
   health() {
     return this._fetch(`/health`);
   },

@@ -245,3 +245,30 @@ class ElasticRepository:
                 extra={"index": index_pattern, "error": str(exc)},
             )
             return {}
+    async def get_enrichments_by_alert(
+        self, alert_id: str, limit: int = 30
+    ) -> list[dict]:
+        """Return recent enrichments for a source alert, newest first."""
+        if self._client is None:
+            return []
+        try:
+            response = await self._client.search(
+                index=f"{self._settings.es_index_enrich}-*",
+                size=limit,
+                query={"term": {"source_alert_id": alert_id}},
+                sort=[{"@timestamp": {"order": "desc"}}],
+            )
+            hits = response.get("hits", {}).get("hits", [])
+            results = []
+            for h in hits:
+                doc = dict(h.get("_source", {}))
+                doc["_id"] = h.get("_id")
+                doc["_index"] = h.get("_index")
+                results.append(doc)
+            return results
+        except Exception as exc:
+            logger.error(
+                "get_enrichments_by_alert failed",
+                extra={"alert_id": alert_id, "error": str(exc)},
+            )
+            return []
