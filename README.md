@@ -335,7 +335,7 @@ pip install -r requirements-dev.txt   # runtime deps + pytest, pytest-asyncio, r
 pytest
 ```
 
-The schema tests read from `/home/vm-ai/soc-ai-lab/config/ai`, so they only pass on the AI VM or with the repository cloned at that path. The scoring tests run anywhere.
+The tests need no Elasticsearch, Ollama or network access: the schema tests read `config/ai` from the repository (override with `SCHEMAS_DIR` and `REMEDIATION_ACTIONS_PATH`), and the route tests mock the Elasticsearch repository.
 
 **End-to-end scenarios.** Each runner launches the attack, polls Elasticsearch for the alert, calls the three enrichments, and checks that all three are validated. The files in [`scripts/tests/`](scripts/tests) are stored wrapped in a `cat > ~/soc-ai-lab/scripts/tests/… << 'EOF'` installer. Running one writes the real runner to that path; with the repository at `~/soc-ai-lab`, it replaces the wrapper in place.
 

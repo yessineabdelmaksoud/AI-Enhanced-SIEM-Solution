@@ -1,6 +1,7 @@
 
 """Tests for JSON schemas and remediation actions."""
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -8,9 +9,18 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 
-PROJECT_ROOT = Path("/home/vm-ai/soc-ai-lab")
-SCHEMAS_DIR = PROJECT_ROOT / "config" / "ai" / "schemas" / "v1"
-ACTIONS_PATH = PROJECT_ROOT / "config" / "ai" / "remediation_actions.json"
+# Repository root (tests/ -> fastapi/ -> app/ -> repo). SCHEMAS_DIR and
+# REMEDIATION_ACTIONS_PATH (same names as the app settings) override it.
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+SCHEMAS_DIR = Path(
+    os.environ.get("SCHEMAS_DIR", PROJECT_ROOT / "config" / "ai" / "schemas" / "v1")
+)
+ACTIONS_PATH = Path(
+    os.environ.get(
+        "REMEDIATION_ACTIONS_PATH",
+        PROJECT_ROOT / "config" / "ai" / "remediation_actions.json",
+    )
+)
 
 
 def load_schema(name: str) -> dict:
