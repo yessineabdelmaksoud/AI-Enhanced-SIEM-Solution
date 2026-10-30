@@ -1,4 +1,3 @@
-cat > ~/soc-ai-lab/scripts/tests/e2e_full.sh << 'EOF'
 #!/usr/bin/env bash
 set -uo pipefail
 
@@ -42,5 +41,3 @@ echo "Scenarios OK: $PASS / 5   |   KO: $FAIL"
 echo "Durée totale: ${DUR}s ($((DUR/60))m$((DUR%60))s)"
 
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
-EOF
-chmod +x ~/soc-ai-lab/scripts/tests/e2e_full.sh

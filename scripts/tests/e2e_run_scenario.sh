@@ -1,4 +1,3 @@
-cat > ~/soc-ai-lab/scripts/tests/e2e_run_scenario.sh << 'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -115,5 +114,3 @@ jq -nc \
     validated_count:$vc, explain_summary_len:$ex_len}'
 
 if [ "$VC" -eq 3 ] && [ "$EX_LEN" -ge 50 ]; then exit 0; else exit 1; fi
-EOF
-chmod +x ~/soc-ai-lab/scripts/tests/e2e_run_scenario.sh

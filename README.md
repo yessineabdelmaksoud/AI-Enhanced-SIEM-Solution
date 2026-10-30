@@ -281,7 +281,7 @@ Notes:
 
 ### 3. Configure
 
-The service reads `/home/vm-ai/soc-ai-lab/config/.env` (and normal environment variables). Start from [`config/.env.example`](config/.env.example). That file is stored as a `cat > … << 'EOF'` shell snippet, so drop its first and last lines, then fill in the values. Copy the Elasticsearch CA (`/vagrant/certs/ca.crt` on the lab VMs) to the path given in `ES_CA_CERT`.
+The service reads `/home/vm-ai/soc-ai-lab/config/.env` (and normal environment variables). Start from [`config/.env.example`](config/.env.example): `cp config/.env.example config/.env`, then fill in the values. Copy the Elasticsearch CA (`/vagrant/certs/ca.crt` on the lab VMs) to the path given in `ES_CA_CERT`.
 
 | Variable | Default | Description |
 |---|---|---|
@@ -337,18 +337,14 @@ pytest
 
 The tests need no Elasticsearch, Ollama or network access: the schema tests read `config/ai` from the repository (override with `SCHEMAS_DIR` and `REMEDIATION_ACTIONS_PATH`), and the route tests mock the Elasticsearch repository.
 
-**End-to-end scenarios.** Each runner launches the attack, polls Elasticsearch for the alert, calls the three enrichments, and checks that all three are validated. The files in [`scripts/tests/`](scripts/tests) are stored wrapped in a `cat > ~/soc-ai-lab/scripts/tests/… << 'EOF'` installer. Running one writes the real runner to that path; with the repository at `~/soc-ai-lab`, it replaces the wrapper in place.
+**End-to-end scenarios.** Each runner launches the attack, polls Elasticsearch for the alert, calls the three enrichments, and checks that all three are validated. The runners live in [`scripts/tests/`](scripts/tests).
 
 ```bash
 sudo apt-get install -y hydra nmap curl iputils-ping jq
 printf 'admin\nroot\ntest\npassword\n123456\nqwerty\nletmein\n' > /tmp/wordlist.txt
 
-bash scripts/tests/e2e_run_scenario.sh            # unwrap the runners
-bash scripts/tests/e2e_full.sh
-chmod +x ~/soc-ai-lab/scripts/tests/*.sh
-
-~/soc-ai-lab/scripts/tests/e2e_run_scenario.sh S1   # one scenario
-~/soc-ai-lab/scripts/tests/e2e_full.sh              # all five, with a latency summary
+scripts/tests/e2e_run_scenario.sh S1   # one scenario
+scripts/tests/e2e_full.sh              # all five, with a latency summary
 ```
 
 The runners target the data-center addresses (`ES_HOST`, `ENDPOINT` at the top of the script). Edit them for the Vagrant lab. Only run the attack scenarios against machines you own.
