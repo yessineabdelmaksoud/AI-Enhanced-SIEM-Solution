@@ -327,11 +327,11 @@ Then open `http://<ai-vm>:8000/` for the incident list, `/ui/health` for the hea
 
 ### 5. Test
 
-**Unit tests** (risk scoring and JSON Schemas):
+**Unit tests** (risk scoring, JSON Schemas, enrichment routes):
 
 ```bash
 cd app/fastapi
-pip install pytest pytest-asyncio
+pip install -r requirements-dev.txt   # runtime deps + pytest, pytest-asyncio, ruff
 pytest
 ```
 
@@ -397,8 +397,9 @@ curl -s -X POST "http://localhost:8000/enrich/$ALERT_ID/remediate" \
 │   │   ├── repositories/           # async Elasticsearch repository
 │   │   ├── services/               # alert, context, dedup, scoring, prompt, llm_gateway, validation, enrichment
 │   │   └── static/                 # index.html, incident.html, health.html, js/, css/
-│   ├── tests/                      # pytest: scoring + schemas
+│   ├── tests/                      # pytest: scoring, schemas, routes
 │   ├── requirements.txt            # runtime dependencies (pinned)
+│   ├── requirements-dev.txt        # + pytest, pytest-asyncio, ruff
 │   └── pytest.ini
 ├── config/
 │   ├── .env.example
