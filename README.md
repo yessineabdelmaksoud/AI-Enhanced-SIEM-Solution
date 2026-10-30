@@ -77,7 +77,7 @@ flowchart LR
     subgraph DETECT["Detection"]
         EP["Endpoints: Wazuh agent and auditd"]
         WZ["Wazuh manager: HIDS and FIM"]
-        SU["Suricata NIDS: custom rules 9000001-9000004"]
+        SU["Suricata NIDS: custom rules 9000001-9000005"]
         FBW["Filebeat on Wazuh VM"]
         FBS["Filebeat on Suricata VM"]
     end
@@ -183,7 +183,7 @@ Each scenario is documented in [`data/samples/scenarios/`](data/samples/scenario
 | [S2](data/samples/scenarios/S2.md) | Port scan | `nmap -sS -p 1-1000` | Suricata 9000002 | `reconnaissance`, T1046 |
 | [S3](data/samples/scenarios/S3.md) | File integrity change | Add, then remove, a user in `/etc/passwd` | Wazuh syscheck 550 | FIM-related explanation and remediation |
 | [S4](data/samples/scenarios/S4.md) | ICMP flood | `ping -f -c 200` | Suricata 9000003 | Network flood explanation |
-| [S5](data/samples/scenarios/S5.md) | Suspicious User-Agent | HTTP request with a crafted User-Agent | Suricata 9000004 | Suspicious HTTP client explanation |
+| [S5](data/samples/scenarios/S5.md) | Suspicious User-Agent | HTTP request with a crafted User-Agent | Suricata 9000005 | Suspicious HTTP client explanation |
 
 ---
 

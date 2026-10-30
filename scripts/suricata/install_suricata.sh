@@ -254,6 +254,12 @@ alert http any any -> $HOME_NET any (msg:"SOC-LAB Suspicious User-Agent curl"; \
   flow:to_server,established; \
   http.user_agent; content:"curl"; nocase; \
   classtype:policy-violation; sid:9000004; rev:1;)
+
+# HTTP user-agent known scanner (scenario S5)
+alert http any any -> $HOME_NET any (msg:"SOC-LAB Suspicious User-Agent EvilScanner"; \
+  flow:to_server,established; \
+  http.user_agent; content:"EvilScanner"; nocase; \
+  classtype:trojan-activity; sid:9000005; rev:1;)
 RULES
 
 # ── [9] Démarrage ────────────────────────────────────────────

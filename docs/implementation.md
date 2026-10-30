@@ -55,11 +55,12 @@ Le projet utilise Vagrant avec VirtualBox pour provisionner 6 machines virtuelle
 - Sorties: EVE-JSON (`eve.json`), Fast log (`fast.log`)
 - Protocoles détectés: HTTP, DNS, TLS, SSH, FTP
 
-**Règles custom** (SID 9000001-9000004) :
+**Règles custom** (SID 9000001-9000005) :
 - SSH brute force (5 tentatives en 60s)
 - Port scan (20 connexions en 10s)
 - ICMP flood (50 paquets en 10s)
 - User-Agent curl suspect
+- User-Agent scanner `EvilScanner` (scénario S5)
 
 ### 2.3 ELK Stack
 

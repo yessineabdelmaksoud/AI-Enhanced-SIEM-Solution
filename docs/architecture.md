@@ -55,6 +55,7 @@ Network IDS listening on `enp0s8` (the host-only NIC) in promiscuous mode (`--ni
   - `9000002` — TCP SYN port scan (20/10s per src)
   - `9000003` — ICMP flood (50/10s per src)
   - `9000004` — `curl` User-Agent to `$HOME_NET`
+  - `9000005` — `EvilScanner` User-Agent to `$HOME_NET` (scenario S5)
 - Outputs: `eve.json` (rich — alert/http/dns/tls/ssh/flow/files/stats) + `fast.log`
 - DNP3 / Modbus rules disabled via `update.d/disable.conf` (no SCADA in this lab)
 

@@ -24,7 +24,7 @@ Mesurer si l'enrichissement IA réduit le temps de compréhension d'une alerte e
 | 2 | suricata | 9000002 | medium | S2 |
 | 3 | wazuh | 550 | high | S3 |
 | 4 | suricata | 9000003 | medium | S4 |
-| 5 | suricata | 9000004 | low | S5 |
+| 5 | suricata | 9000005 | low | S5 |
 | 6 | | | | |
 | … | | | | |
 | 15 | | | | |

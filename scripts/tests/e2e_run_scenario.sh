@@ -65,7 +65,7 @@ case "$SCENARIO" in
     DESC="Suspicious User-Agent"
     SIM_CMD="curl -s -A 'EvilScanner/1.0' http://$ENDPOINT/ -m 5"
     INDEX="suricata-eve-*"
-    QUERY='{"size":1,"query":{"bool":{"must":[{"term":{"event_type":"alert"}},{"term":{"alert.signature_id":9000004}}],"filter":['"$TIME_FILTER"']}},"sort":[{"@timestamp":{"order":"desc"}}]}'
+    QUERY='{"size":1,"query":{"bool":{"must":[{"term":{"event_type":"alert"}},{"term":{"alert.signature_id":9000005}}],"filter":['"$TIME_FILTER"']}},"sort":[{"@timestamp":{"order":"desc"}}]}'
     ;;
   *) echo "Unknown scenario: $SCENARIO" >&2; exit 2 ;;
 esac
