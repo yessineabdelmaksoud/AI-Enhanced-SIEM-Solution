@@ -277,7 +277,6 @@ bash scripts/ai/05_install_fastapi.sh                       # venv + systemd uni
 Notes:
 - `01_firewall_ai.sh` defaults to `SUBNET=10.110.188.0/24` (the data-center network). Override it as shown for the Vagrant lab.
 - When Ollama runs in the Docker container from step 02, the `ollama` CLI lives inside the container. If `03_pull_model.sh` cannot find it, pull with `sudo docker exec ollama ollama pull qwen3:14b`.
-- `05_install_fastapi.sh` looks for `app/fastapi/requirements.txt`. The file is currently at `app/fastapi/app/api/requirements.txt`, so copy it there first.
 - **Memory:** the Vagrantfile gives `VM-AI-01` 6 GB of RAM, which is tight for `qwen3:14b` on CPU. Give the VM more memory, use a GPU host, or set `OLLAMA_MODEL` to a smaller model.
 
 ### 3. Configure
@@ -320,7 +319,7 @@ Manually, for development (run from `app/fastapi` so the static UI resolves):
 ```bash
 cd app/fastapi
 python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r app/api/requirements.txt
+pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -392,13 +391,14 @@ curl -s -X POST "http://localhost:8000/enrich/$ALERT_ID/remediate" \
 ├── app/fastapi/                    # enrichment service
 │   ├── app/
 │   │   ├── main.py                 # app factory, lifespan wiring, static UI
-│   │   ├── api/                    # routes: health, incidents, enrich, debug (+ requirements.txt)
+│   │   ├── api/                    # routes: health, incidents, enrich, debug
 │   │   ├── core/                   # settings (pydantic-settings), JSON logging
 │   │   ├── models/alert.py         # AlertCore, Entity, IncidentContext, ES normalization
 │   │   ├── repositories/           # async Elasticsearch repository
 │   │   ├── services/               # alert, context, dedup, scoring, prompt, llm_gateway, validation, enrichment
 │   │   └── static/                 # index.html, incident.html, health.html, js/, css/
 │   ├── tests/                      # pytest: scoring + schemas
+│   ├── requirements.txt            # runtime dependencies (pinned)
 │   └── pytest.ini
 ├── config/
 │   ├── .env.example
