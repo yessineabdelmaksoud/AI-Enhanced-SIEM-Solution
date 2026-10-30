@@ -365,6 +365,7 @@ Interactive docs: `GET /docs` (Swagger UI) and `GET /openapi.json`.
 | `GET` | `/health` | Elasticsearch and Ollama reachability, model and version. Returns `503` with `status: degraded` if either is down. |
 | `GET` | `/incidents?hours=24&limit=50` | Recent alerts grouped by `source.ip`, scored and sorted by risk, with a `has_enrichment` flag. `hours` 1 to 168, `limit` 1 to 200. |
 | `POST` | `/enrich/{alert_id}/{usage}` | Run the pipeline. `usage` is `explain`, `investigate` or `remediate`. Returns the enrichment document (`validated`, `risk_score`, `response`, `latency_ms`, `_cache_hit`, ...). `404` unknown alert, `504` LLM timeout, `502` LLM unavailable. |
+| `GET` | `/enrichments/by-alert/{alert_id}` | Latest stored enrichment per usage for an alert (`{"enrichments": {"explain": {...}, "investigate": null, ...}}`). Used by the incident page to preload its tabs. |
 | `GET` | `/enrichments/{enrichment_id}` | Fetch a stored enrichment. |
 | `GET` | `/debug/context/{alert_id}` | The correlated context built for an alert. |
 | `GET` | `/debug/prompt/{usage}/{alert_id}` | The exact prompt that would be sent, with its size and a token estimate. |
@@ -439,13 +440,12 @@ curl -s -X POST "http://localhost:8000/enrich/$ALERT_ID/remediate" \
 - The Ollama container publishes 11434 on all interfaces, and Docker-published ports bypass UFW. Bind it to `127.0.0.1` when FastAPI is the only client.
 - On CPU, a fresh enrichment takes about 1 to 2 minutes, and `LLM_MAX_CONCURRENT=1` serializes requests.
 - Prompts and generated text are in French. Editing [`config/ai/prompts/v1`](config/ai/prompts/v1) changes the output language.
-- The incident page tries to preload previous enrichments from `/enrichments/by-alert/{alert_id}`, which the API does not implement yet. The tabs still work, and repeat requests are served from the cache.
 - The AI VM is set up by hand, and several paths are hard-coded to `/home/vm-ai/soc-ai-lab`.
 - The analyst study in [docs/evaluation.md](docs/evaluation.md) has not been run yet.
 
 **Roadmap**
 - Add authentication (JWT or API key) and role-based access to the API and UI.
-- Persist the dedup cache in Redis or Elasticsearch, and add the `by-alert` enrichment lookup.
+- Persist the dedup cache in Redis or Elasticsearch.
 - Automate AI VM provisioning in the Vagrantfile, and make all paths configurable.
 - Trigger enrichment automatically from new high-risk alerts, not only on demand.
 - Run the analyst evaluation and publish the time-to-understand results.

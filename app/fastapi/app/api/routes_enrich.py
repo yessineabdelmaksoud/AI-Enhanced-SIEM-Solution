@@ -1,6 +1,6 @@
 """Public enrichment API."""
 import logging
-from typing import Literal
+from typing import Literal, get_args
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -39,6 +39,31 @@ async def enrich(alert_id: str, usage: EnrichUsage, request: Request) -> dict:
         raise HTTPException(status_code=504, detail=f"LLM timeout: {exc}")
     except LlmHttpError as exc:
         raise HTTPException(status_code=502, detail=f"LLM unavailable: {exc}")
+
+
+@router.get("/enrichments/by-alert/{alert_id}")
+async def get_enrichments_by_alert(alert_id: str, request: Request) -> dict:
+    """Latest stored enrichment per usage for a source alert.
+
+    Always returns 200. A usage with no stored enrichment maps to null,
+    so the UI can offer to generate it.
+    """
+    es_repo: ElasticRepository = request.app.state.es_repo
+    docs = await es_repo.get_enrichments_by_alert(alert_id)
+
+    # docs are sorted newest first: keep the first one seen for each usage
+    latest: dict[str, dict | None] = {u: None for u in get_args(EnrichUsage)}
+    for doc in docs:
+        usage = doc.get("usage")
+        if usage in latest and latest[usage] is None:
+            doc["enrichment_id"] = doc.get("_id")
+            latest[usage] = doc
+
+    return {
+        "alert_id": alert_id,
+        "count": sum(1 for d in latest.values() if d is not None),
+        "enrichments": latest,
+    }
 
 
 @router.get("/enrichments/{enrichment_id}")
