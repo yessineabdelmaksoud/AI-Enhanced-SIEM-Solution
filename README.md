@@ -2,6 +2,7 @@
 
 **An on-premises LLM layer for Wazuh, Suricata and Elasticsearch that explains alerts in plain language, writes KQL to investigate them, and recommends a remediation. No alert data ever leaves your network.**
 
+[![CI](https://github.com/yessineabdelmaksoud/AI-Enhanced-SIEM-Solution/actions/workflows/ci.yml/badge.svg)](https://github.com/yessineabdelmaksoud/AI-Enhanced-SIEM-Solution/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-Qwen3--14B-000000?logo=ollama&logoColor=white)
@@ -332,10 +333,11 @@ Then open `http://<ai-vm>:8000/` for the incident list, `/ui/health` for the hea
 ```bash
 cd app/fastapi
 pip install -r requirements-dev.txt   # runtime deps + pytest, pytest-asyncio, ruff
+ruff check                            # real-error rules only, see ruff.toml
 pytest
 ```
 
-The tests need no Elasticsearch, Ollama or network access: the schema tests read `config/ai` from the repository (override with `SCHEMAS_DIR` and `REMEDIATION_ACTIONS_PATH`), and the route tests mock the Elasticsearch repository.
+The tests need no Elasticsearch, Ollama or network access: the schema tests read `config/ai` from the repository (override with `SCHEMAS_DIR` and `REMEDIATION_ACTIONS_PATH`), and the route tests mock the Elasticsearch repository. [CI](.github/workflows/ci.yml) runs the same `ruff check` and `pytest` on Python 3.11 for every push and pull request to `main`, plus `bash -n` and `shellcheck --severity=error` on every script under `scripts/`.
 
 **End-to-end scenarios.** Each runner launches the attack, polls Elasticsearch for the alert, calls the three enrichments, and checks that all three are validated. The runners live in [`scripts/tests/`](scripts/tests).
 
@@ -383,6 +385,7 @@ curl -s -X POST "http://localhost:8000/enrich/$ALERT_ID/remediate" \
 
 ```
 .
+├── .github/workflows/ci.yml        # CI: ruff + pytest, bash -n + shellcheck
 ├── Vagrantfile                     # 6-VM lab definition
 ├── app/fastapi/                    # enrichment service
 │   ├── app/
@@ -396,6 +399,7 @@ curl -s -X POST "http://localhost:8000/enrich/$ALERT_ID/remediate" \
 │   ├── tests/                      # pytest: scoring, schemas, routes
 │   ├── requirements.txt            # runtime dependencies (pinned)
 │   ├── requirements-dev.txt        # + pytest, pytest-asyncio, ruff
+│   ├── ruff.toml                   # lint config (real-error rules only)
 │   └── pytest.ini
 ├── config/
 │   ├── .env.example

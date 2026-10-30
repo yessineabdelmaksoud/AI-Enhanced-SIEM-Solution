@@ -9,6 +9,7 @@ __pycache__/
 *.pyo
 .venv/
 .pytest_cache/
+.ruff_cache/
 
 # Logs and runtime
 logs/*.json

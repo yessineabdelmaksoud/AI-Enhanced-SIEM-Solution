@@ -1,14 +1,14 @@
 """Async Elasticsearch repository."""
 import asyncio
 import logging
+import time
+from datetime import datetime
 from typing import Optional
 
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.exceptions import NotFoundError
-from datetime import datetime 
+
 from app.core.config import Settings
-import time
-from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
